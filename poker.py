@@ -1,81 +1,83 @@
 
 def main():
 	card_test()
+	hand_test()
 
 class Poker(object):
 	def __init__(self,hands = []):
 		self.hands = hands
 
 	def get_winning_hand():
-		return 1
+		pass
 
 class Hand(object):
 	
-	def is_royal_flush():
-		return min(self.ranks) == 10 and max(self.ranks) == 14 and len(set(self.suits)) == 1
+	def is_royal_flush(self):
+		return min(self.ranks) == 10 and max(self.ranks) == 14 and len(set(self.suits)) == 1 and len(set(self.ranks)) == 5
 
-	def is_straight_flush():
-		return (max(self.ranks) - min(self.ranks) == 4) and len(set(self.suits)) == 1 and max(self.ranks) != 14
+	def is_straight_flush(self):
+		rks = self.ranks
+		for i in range(0,5):
+			rks[i] = rks[i]%13
+		return (max(rks)-min(rks)) == 4 and len(set(self.suits)) == 1 and len(set(self.ranks)) == 5 
 
-	def is_kind(n):
+	def is_kind(self,n):
    		for r in self.ranks:
 			if self.ranks.count(r) == n: 
 				return True
 		return False
 
-	def is_full_house():
-		return is_kind(3) and is_kind(2)
+	def is_full_house(self):
+		return self.is_kind(3) and self.is_kind(2)
 
-	def is_flush():
+	def is_flush(self):
 		return len(set(self.suits)) == 1
 
-	def is_straight():
-		minrank = min(self.ranks)
-		for r in sorted(self.ranks):
-			if minrank != minrank: 
-				return False
-			minrank = minrank + 1
-		return True
+	def is_straight(self):
+		rks = self.ranks
+		if(14 in rks):
+			rks.append(1)
+		return (max(rks) - min(rks)) == 4 and len(set(rks)) == 5
 
-	def is_two_pair():
-		return is_kind(2) and len(set(self.ranks)) == 3
+	def is_two_pair(self):
+		return self.is_kind(2) and len(set(self.ranks)) == 3
 	
-	def is_one_pair():
-		return is_kind(2) and len(set(self.ranks)) != 3	
+	def is_one_pair(self):
+		return self.is_kind(2) and len(set(self.ranks)) != 3	
 
-	def get_hand_type():
-		if(is_royal_flush()):
+	def get_hand_type(self):
+		if(self.is_royal_flush()):
 			return 1
-		elif(is_straight_flush()):
+		elif(self.is_straight_flush()):
 			return 2
-		elif(is_kind(4)):
+		elif(self.is_kind(4)):
 			return 3
-		elif(is_full_house()):
+		elif(self.is_full_house()):
 			return 4
-		elif(is_flush()):
+		elif(self.is_flush()):
 			return 5
-		elif(is_straight()):
+		elif(self.is_straight()):
 			return 6
-		elif(is_kind(3)):
+		elif(self.is_kind(3)):
 			return 7
-		elif(is_two_pair()):
+		elif(self.is_two_pair()):
 			return 8
-		elif(is_one_pair()):
+		elif(self.is_one_pair()):
 			return 9
 		else:
 			return 10		
 
-	def __init__(self,cards = '',ranks='',suits='',handtype=''):
+	def __init__(self,cards = ''):
 		self.cards = []
 		for c in cards.split():
 			self.cards.append(Card(c))
 		
 		self.ranks = []
 		self.suits = []
-		for c in cards:
+		for c in self.cards:
 			self.ranks.append(c.rank)
 			self.suits.append(c.suit)
-		self.handtype = get_hand_type()
+		self.handtype = self.get_hand_type()
 
 class Card(object):
 	def rank(self,char):
@@ -97,23 +99,36 @@ def card_test():
 	assert c.suit == 'D'
 
 def hand_test():
-	handt = Hand('AS KS QS JS TS')
-	handf = Hand('AH KS QS JS TS')
-	assert handt.is_royal_flush() == True
-	assert handf.is_royal_flush() == False
-	
-	handt = Hand('5S 4S 3S 2S AS')
-	handf = Hand('5H 4S 3S 2S AS')
-	assert handt.is_straight_flush() == True
-	assert handf.is_straight_flush() == False
+	royal_flush = Hand('AS KS QS JS TS')
+	straight_flush = Hand('5S 4S 3S 2S AS')
+	four_of_kind = Hand('AH AS AD AC KH')
+	full_house = Hand('AH AS AD KH KS')
+	flush = Hand('AS TS 2S 5S 6S')
+	straight = Hand('5H 4A 3S 2S AC')
+	three_of_kind = Hand('AH AS AC KH QC')
+	two_pair = Hand('AH AC KH KS QC')
+	one_pair = Hand('AH AS KH QS JD')
+	high_card = Hand('AH KS JD 5H 2D')
 
-	hand = Hand('AH AS AD AC KH')
-	assert hand.is_kind(4) == True
+	assert royal_flush.is_royal_flush() == True
+	assert straight_flush.is_straight_flush() == True
+	assert four_of_kind.is_kind(4) == True
+	assert full_house.is_full_house() == True
+	assert flush.is_flush() == True
+	assert straight.is_straight() == True
+	assert three_of_kind.is_kind(3) == True
+	assert two_pair.is_two_pair() == True
+	assert one_pair.is_one_pair() == True
 
-	hand = Hand('AH AS AD AC KH')
-	assert hand.is_kind(4) == True
-	
-		
+	assert royal_flush.get_hand_type() == 1
+	assert straight_flush.get_hand_type() == 2
+	assert four_of_kind.get_hand_type() == 3
+	assert full_house.get_hand_type() == 4
+	assert flush.get_hand_type() == 5
+	assert straight.get_hand_type() == 6
+	assert three_of_kind.get_hand_type() == 7
+	assert two_pair.get_hand_type() == 8
+	assert one_pair.get_hand_type() == 9
 
 def poker_test():
 	h1 = ['AH','4H','2H','3H','5H']
